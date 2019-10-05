@@ -5,28 +5,38 @@ import configparser
 from csv import DictReader
 from os.path import expanduser, isfile
 
-config = configparser.ConfigParser()
 home = expanduser('~')
-home_creds = home + '/.aws/credentials'
-config.read(home_creds)
+
+home_credentials = home + '/.aws/credentials'
+credentials = configparser.ConfigParser()
+credentials.read(home_credentials)
+
+home_config = home + '/.aws/config'
+config = configparser.ConfigParser()
+config.read(home_config)
 
 profiles = [
     inquirer.List(
         'profile',
         message="Select a profile to set as default",
-        choices=config.sections(),
+        choices=list(set(credentials.sections() + config.sections())),
     ),
 ]
 
 
 def magic(new_profile_name):
-    if new_profile_name in config:
-        new_profile_name_default = config[str(new_profile_name)]
-        config['default'] = new_profile_name_default
-        with open(home_creds, 'w') as configfile:
-            config.write(configfile)
-        print(f'AWS profile `{new_profile_name}` has been set as default')
-    else:
+    found_flag = False
+    for parser, file_path in zip([credentials, config],
+                                 [home_credentials, home_config]):
+        if new_profile_name in parser:
+            found_flag = True
+            new_profile_name_default = parser[str(new_profile_name)]
+            parser['default'] = new_profile_name_default
+            with open(file_path, 'w') as parser_file:
+                parser.write(parser_file)
+            print(f'AWS profile `{new_profile_name}` has been set as default in `{file_path}`')
+
+    if not found_flag:
         print(f'AWS profile `{new_profile_name}` not found')
         exit(1)
 
@@ -47,7 +57,7 @@ if args.add:
                     config.add_section(args.alias)
                     config[args.alias]["aws_access_key_id"] = row['Access key ID']
                     config[args.alias]["aws_secret_access_key"] = row['Secret access key']
-                    with open(home_creds, 'w') as configfile:
+                    with open(home_credentials, 'w') as configfile:
                         config.write(configfile)
     else:
         exit("No alias was provided")
