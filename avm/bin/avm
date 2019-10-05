@@ -3,10 +3,7 @@ import argparse
 import inquirer
 import configparser
 from csv import DictReader
-from sys import argv
-from os import environ
 from os.path import expanduser, isfile
-import csv
 
 config = configparser.ConfigParser()
 home = expanduser('~')
