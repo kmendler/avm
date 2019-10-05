@@ -18,6 +18,7 @@ profiles = [
     ),
 ]
 
+
 def magic(new_profile_name):
     if new_profile_name in config:
         new_profile_name_default = config[str(new_profile_name)]
@@ -31,10 +32,10 @@ def magic(new_profile_name):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--add",required=False, action='store_true')
-parser.add_argument("-f","--credentials-file",required=False)
-parser.add_argument("-a","--alias",required=False)
-parser.add_argument("--use",required=False)
+parser.add_argument("--add", required=False, action='store_true')
+parser.add_argument("-f", "--credentials-file", required=False)
+parser.add_argument("-a", "--alias", required=False)
+parser.add_argument("--use", required=False)
 args = parser.parse_args()
 
 if args.add:
