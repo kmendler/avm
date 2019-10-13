@@ -43,22 +43,22 @@ def magic(new_profile_name):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--add", required=False, action='store_true')
-parser.add_argument("-f", "--credentials-file", required=False)
+parser.add_argument("-f", "--credentials-file", dest='new_creds', required=False)
 parser.add_argument("-a", "--alias", required=False)
 parser.add_argument("--use", required=False)
 args = parser.parse_args()
 
 if args.add:
     if args.alias:
-        if isfile(args.credentials_file):
-            with open(args.credentials_file, 'r') as credfile:
-                reader = csv.DictReader(credfile)
+        if isfile(args.new_creds):
+            with open(args.new_creds, 'r') as new_cred_handle:
+                reader = DictReader(new_cred_handle)
+                credentials.add_section(args.alias)
                 for row in reader:
-                    config.add_section(args.alias)
-                    config[args.alias]["aws_access_key_id"] = row['Access key ID']
-                    config[args.alias]["aws_secret_access_key"] = row['Secret access key']
-                    with open(home_credentials, 'w') as configfile:
-                        config.write(configfile)
+                    credentials[args.alias]["aws_access_key_id"] = row['Access key ID']
+                    credentials[args.alias]["aws_secret_access_key"] = row['Secret access key']
+            with open(home_credentials, 'w') as cred_handle:
+                credentials.write(cred_handle)
     else:
         exit("No alias was provided")
 elif args.use:
